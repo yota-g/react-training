@@ -1,0 +1,39 @@
+67.68はmy-first-react-app-in-typescriptのsrc/App.tsxとindex.tsxに記入した
+
+69.UseStateと型制約を学習する
+reactのhooksの機能であるUseStateを用いてコードを書いていくが、これで書いたコードに対してどのようにtypescriptの型を適用していくのかの事例を見ていく。
+Using the State HookはUseStateの公式のページ。
+reactjs.org/docs/hooks-state.htmlに書いている。
+Reactの機能なので詳しくは講座が違うので参考にしておく事。
+ファイルを作っていく。
+src/Counter.tsx JSX。コンポーネントを作る。
+
+
+70.UseReftとuseEffectを使ってみよう
+useReftのHOOKとuseEffectを学ぶ。
+
+71useRefのより実践的な使い方とOptional Chaining とNon-Null Assertion Operator の紹介。
+よく使われるパターンの紹介。
+reactjs.org/docs/hook-reference.html#useref
+公式サイトで紹介されているuseRefの使い方の例
+nullでuseRefを使って初期値を与えて、refのインスタンスを作っている。
+inputELは初期化の後でinput要素のref属性に設定している。
+そうする事でinput要素への関連付け(ref = {inputEL})ができる。inputELというオブジェクト経由でinput要素へのアクセスができるようになる。それを行っているのがonButtonClickという関数。この関数の処理の実態に着目。
+onClickで発火するイベントハンドラーだけども、inputELのcurrentで取り出してfocusメソッドを呼んでいる。これをする事でinput要素へフォーカスが移るということをやっている。
+これと同じことをtsで行っていく。
+
+
+function TextInputWithFocusButton() {
+  const inputEl = useRef(null);
+  const onButtonClick = () => {
+    // `current` points to the mounted text input element
+    inputEl.current.focus();
+  };
+  return (
+    <>
+      <input ref={inputEl} type="text" />
+      <button onClick={onButtonClick}>Focus the input</button>
+    </>
+  );
+}
+
