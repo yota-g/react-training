@@ -1,5 +1,7 @@
 import React from 'react';
 import Counter from './Counter';
+import CounterWithReducer from './CounterWithReducer';
+//72のCounterWithReducerをインポートして、CounterWithReducerを表示する事を実施する。
 
 // const App = () => {
 //   return <div>React Starter Kit in TypeScript</div>;
@@ -86,15 +88,24 @@ interface AppProps {
 
 //69
 
-const App: React.FunctionComponent<AppProps> = ({message}) => {
-  return <div>
-    <Counter />
-  </div>;
-  // Counterコンポーネントの方でコンポーネントが実装されていれば、Counterと書かれたところにレンダリングされる。
-};
+// const App: React.FunctionComponent<AppProps> = ({message}) => {
+//   return <div>
+//     <Counter />
+//   </div>;
+//   // Counterコンポーネントの方でコンポーネントが実装されていれば、Counterと書かれたところにレンダリングされる。
+// };
 
 // App.defaultProps = {
 //   message: 'Hello, defaultProp!',
 // }
 
+//72の講義
+const App: React.FunctionComponent<AppProps> = ({message}) => {
+  return <div>
+    <CounterWithReducer />
+  </div>;
+  //現時点のブラウザでの表示を確認する。counterとして機能している事がわかる。
+  //stateとactionをany型にCounterWithComponent.tsxでしたのでちゃんとした型指定を行う。
+  
+};
 export default App;

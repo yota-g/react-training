@@ -153,6 +153,45 @@ import React, { useEffect, useRef, useState } from 'react';
 //readonlyArray[0] = 11; //こちらに関してはupdateする事ができない。readonlyな要素になっているから。配列があるけど要素を壊せないようになっている。
 //これがuseEffectの第二引数に指定する事ができる。これがdepsの型の正体。
 
+// const Counter: React.FC<{}> = () => {
+//   const initialValue: any = 0;
+//   const [value, setValue] = useState<number>(initialValue);
+
+//   const increment = () => {
+//     setValue(value + 1);
+//   };
+//   const decrement = () => {
+//     setValue(value - 1);
+//   };
+
+//   const renderTimes = useRef<number>(0);
+//   useEffect(() => {
+    //console.log('render was done');
+  //   renderTimes.current = renderTimes.current +1;
+  // });
+  // まず第一引数に必須の関数を与えるその中に実装をかく。
+  //ブラウザで動作確認。リロードするとconsoleの文字列が表示される
+  //buttonをクリックするとどうなるのか。console画面で押した回数'render was done'が何度も表示される。
+  //これは実装したuseEffectに渡している第一引数に渡しているコールバックがrenderする度に実行されているから。正常に動いている。
+  //useEffectに実装されている関数が実行されるたびにrendertimesが保持している値を+ 1するようにする。そうする事で回数がレンダーするたびに増加していくようにできる。上記のように入力するとレンダーするたびに上書きできる。
+  //buttonをクリックするたびにリレンダされるのでその度にrenderTimesの回数が増加させてあげるというようにする。　
+  //増えたrenderTimesが表示されている事が確認できる。
+  //useRefはuseStateと同じように型制約をする事ができる。
+  
+
+//   return (
+//     <div>
+//       <div>value: {value}</div>
+//       <button onClick={increment}>+1 </button>
+//       <button onClick={decrement}>-1</button>
+//       <div>This component was re-rendered {renderTimes.current} times!</div>
+//     </div>
+//   );
+// };
+
+//71　まずはnullで初期化を行う。
+
+
 const Counter: React.FC<{}> = () => {
   const initialValue: any = 0;
   const [value, setValue] = useState<number>(initialValue);
@@ -166,18 +205,42 @@ const Counter: React.FC<{}> = () => {
 
   const renderTimes = useRef<number>(0);
   useEffect(() => {
-    //console.log('render was done');
     renderTimes.current = renderTimes.current +1;
   });
-  // まず第一引数に必須の関数を与えるその中に実装をかく。
-  //ブラウザで動作確認。リロードするとconsoleの文字列が表示される
-  //buttonをクリックするとどうなるのか。console画面で押した回数'render was done'が何度も表示される。
-  //これは実装したuseEffectに渡している第一引数に渡しているコールバックがrenderする度に実行されているから。正常に動いている。
-  //useEffectに実装されている関数が実行されるたびにrendertimesが保持している値を+ 1するようにする。そうする事で回数がレンダーするたびに増加していくようにできる。上記のように入力するとレンダーするたびに上書きできる。
-  //buttonをクリックするたびにリレンダされるのでその度にrenderTimesの回数が増加させてあげるというようにする。　
-  //増えたrenderTimesが表示されている事が確認できる。
-  //useRefはuseStateと同じように型制約をする事ができる。
-  
+
+  const ref = useRef<HTMLInputElement>(null);
+  //nullで初期化して作れられてオブジェクトを設定する。
+  //現在の型はconst refは、React.MutableRefObject<null>  この型をRefObjectにしたい。
+  //それにはuseRefの型引数にこのRefはこの要素のRefとして使うということを設定してあげないといけない。
+  //何を設定するかは input要素のrefをホバーしてあげるといい。　
+  // ホバーして出てきたReact.RefObject<HTMLInputElement> | null | undefinedに渡っている引数を使って、useRefをHTMLInputElementを使用して初期化してあげることになる。　
+  //こうするとconso refにホバーすると型が React.RefObject<HTMLInputElement>に変わる。
+  //ここまでするとinputのrefにconst refを代入する準備ができたので、refを代入する。型が一致しているのでエラーにはならない。　　
+  //button tagを実装する。　
+  const focusInput = () => {
+    const current = ref.current;
+    if (current != null) current.focus();
+    //ref.currentとするとinputを参照できる。そのrefに対してfocus()するという設定を行う。　
+    //このままだとエラーになる。nullの可能性があるという表示がある。nullに対しては現状呼べないようになっているが初期化でnullを代入してしまっている。　回避するにはif文で回避するしかない。nullじゃなかったらfocusaInputでcurrent.focusを呼び出せるようにする。そうする事でエラーがなくなる。
+    //yarn startしてクリックするとinputの枠の色が変化する。focusが当たるという事。ちゃんとfocusが実行されている事がわかる。useRefを使ったときのアノテーションの紹介を確認。
+    // ref.current.focus(); 
+    //これだとnullの可能性があるから呼び出せないけど、focusが呼び出せる時だけ呼び出させてくださいという呼び方ができる。
+    //ref.current?.focus();
+    // currentに?をつけるとnullかもしれない場合に?をつけて、nullの場合には実行しないよという機能をつける事ができる。
+  };
+  //const refは今inputにリファレンスとして機能しているのでその機能を使用。
+  //   さらなる応用編もう少し完結に書く方法
+  //   tsはref.currentがnullの可能性があるとtsが指摘してきたが、この関数がいつ呼ばれるのかを考えるとrefがinput要素のrefに渡ってref.currentにinput要素が設定されて、レンダーされて、そのレンダーされたドム状の要素をクリックした時に初めて、focusInputの関数が呼ばれる。だいぶ経ってから使われる。
+  //   絶対にこの関数の中でref.currentを参照するいくらrefをnullで初期化していたとしても、絶対にnull状態であるはずがない。nullについては最初から考慮しなくいいよ、除外していいよとtsに伝える事ができればいい。
+  //   そのやり方を学ぶ。
+
+  // 初めnullを初期値に渡してuseRef初期化していたが、、それだとref.currentがnullであるということをtsのコンパイラーが見抜いてしまう。
+  // nullの直後に!をつける事でその直前のデータの型はnull型じゃないという思いをコンパイラーに仮にnullを渡していてもtsのコンパイラーに明示的に伝える事ができる。　！をつけるとエラーが出なくなる。！の事をnon null assertionオペレータという。tsではエラーが起きた時に対処する方法が色々あるのでチーム開発だとプロジェクトに応じた解を考える事が大切。
+  //   const ref = useRef<HTMLInputElement>(null!);
+  // const focusInput = () => {
+  //   ref.current.focus();
+  // };という形でもエラーが出ないようにできる。
+
 
   return (
     <div>
@@ -185,8 +248,31 @@ const Counter: React.FC<{}> = () => {
       <button onClick={increment}>+1 </button>
       <button onClick={decrement}>-1</button>
       <div>This component was re-rendered {renderTimes.current} times!</div>
+      <input ref={ref} type="text"/>
+      <button onClick={focusInput}>Click message!</button>
     </div>
+    //button tagにonClickと書いてクリックしたら行う動作を記入する。
+    //clickしたらinputのテキストのフォーカスが当たるようにする
+    //focusInputの関数でその実装をかく
+
   );
 };
+
+//inputの中のrefの定義を確認する。
+//interface ClassAttributes<T> extends Attributes {
+  // ref?: LegacyRef<T>;
+// }
+//refはオプショナルなもので、LegacyRefはrefの型なのでこれについても定義を確認。この段階でホバーの確認はしていない
+//type LegacyRef<T> = string | Ref<T>;
+//stringまたはRef<T>。
+//Ref<T>を使った人はわかる。
+//Refに対して設定する型は昔は文字列もオッケーだったが今は非推奨。
+//型としてstringは受け付けてくれるが、ts的には問題ないが、reactのお作法としては非推奨なので実質stringは使わない方がいいので、Ref<T>型のデータを使用していくというのが今のやり方。やり方に注意する。
+//Ref<T>の定義について見ていく。
+//type Ref<T> = RefCallback<T> | RefObject<T> | null ;
+//これら３つのいずれかである。
+//今回はuseRefによって作られるオブジェクトをRefに代入しようと思っているんでRefObjectの型のデータをRefに設定する。
+//Refオブジェクトの型のデータのオブジェクトを作っていく。
+
 
 export default Counter;

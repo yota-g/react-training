@@ -1,4 +1,6 @@
 67.68はmy-first-react-app-in-typescriptのsrc/App.tsxとindex.tsxに記入した
+ファイル名はreactを使用するならtsxに拡張子をする事。　
+
 
 69.UseStateと型制約を学習する
 reactのhooksの機能であるUseStateを用いてコードを書いていくが、これで書いたコードに対してどのようにtypescriptの型を適用していくのかの事例を見ていく。
@@ -36,4 +38,72 @@ function TextInputWithFocusButton() {
     </>
   );
 }
+
+tsのver3.7にオプショナルチェイニングがあって、これを使う事で、完結に書く事ができる
+ある種のリファクタリングを確認する。
+
+
+const Counter: React.FC<{}> = () => {
+  const initialValue: any = 0;
+  const [value, setValue] = useState<number>(initialValue);
+
+  const increment = () => {
+    setValue(value + 1);
+  };
+  const decrement = () => {
+    setValue(value - 1);
+  };
+
+  const renderTimes = useRef<number>(0);
+  useEffect(() => {
+    renderTimes.current = renderTimes.current +1;
+  });
+
+  const ref = useRef<HTMLInputElement>(null);
+  const focusInput = () => {
+    ref.current?.focus(); //これだとnullの可能性があるから呼び出せないけど、focusが呼び出せる時だけ呼び出させてくださいという呼び方ができる。
+    currentに?をつけるとnullかもしれない場合に?をつけて、nullの場合には実行しないよという機能。
+      };
+    さらなる応用編もう少し完結に書く方法
+    tsはref.currentがnullの可能性があるとtsが指摘してきたが、この関数がいつ呼ばれるのかを考えるとrefがinput要素のrefに渡ってref.currentにinput要素が設定されて、レンダーされて、そのレンダーされたドム状の要素をクリックした時に初めて、focusInputの関数が呼ばれる。だいぶ経ってから使われる。
+    絶対にこの関数の中でref.currentを参照するいくらrefをnullで初期化していたとしても、絶対にnull状態であるはずがない。nullについては最初から考慮しなくいいよ、除外していいよとtsに伝える事ができればいい。
+    そのやり方を学ぶ。
+
+  初めnullを初期値に渡してuseRef初期化していたが、、それだとref.currentがnullであるということをtsのコンパイラーが見抜いてしまう。
+  nullの直後に!をつける事でその直前のデータの型はnull型じゃないという思いをコンパイラーに仮にnullを渡していてもtsのコンパイラーに明示的に伝える事ができる。　！をつけるとエラーが出なくなる。！の事をnon null assertionオペレータという。tsではエラーが起きた時に対処する方法が色々あるのでチーム開発だとプロジェクトに応じた解を考える事が大切。
+    const ref = useRef<HTMLInputElement>(null!);
+  const focusInput = () => {
+    ref.current.focus();
+  };
+
+
+  return (
+    <div>
+      <div>value: {value}</div>
+      <button onClick={increment}>+1 </button>
+      <button onClick={decrement}>-1</button>
+      <div>This component was re-rendered {renderTimes.current} times!</div>
+      <input ref={ref} type="text"/>
+      <button onClick={focusInput}>Click message!</button>
+    </div>
+
+  );
+};
+
+
+72.useReducerとオーバーロードを用いたその型定義について。
+公式のuseReducerの実装例をみると
+countercコンポーネントの実装例をみる。
+tsの講義で使用していく。
+ブランチを切ってファイルを作っていく。
+touch src/CounterWithReducer.tsx
+貼り付けるとまずは動くところまで修正をしていく。　
+
+
+//73 useReducerの利用例
+前回のレクチャーの続きを行っていく。
+ブランチを切る事。
+作業を続けていく。
+
+
 
